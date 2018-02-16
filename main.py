@@ -1,17 +1,29 @@
+#check if image_path is in removed.csv
+
+
 import os
 import csv
 import cv2
 
 path_to_images = './landscapes/'
+path_to_edits = './photos_to_edit/'
+path_to_removed = './photos_to_remove/'
+
 results_csv = './cf_report_1230552_full.csv'
+removed_csv = './removed.csv'
 keyword_options = ['city', 'field', 'forest', 'mountain', 'ocean', 'lake', 'road']
-check_these_images = []
+remove_these_images = []
 
 
 def parse_filename_from_url(url):
     clean_name = url.split('.com/')[1].split('/')[1]
     return clean_name
 
+def remove_image(image_path, new_path):
+    with open(removed_csv, 'a') as csvfile:
+        csvwriter = csv.writer(csvfile, delimiter=' ')
+        csvwriter.writerow([image_path])
+    os.rename(image_path, new_path)
 
 def process_csv_results(csv_file):
     with open(csv_file, 'rb') as f:
@@ -40,6 +52,7 @@ def process_csv_results(csv_file):
     print len(results)
 
     for image_path in flagged_images:
+        print image_path
         cv2.imshow('image', cv2.imread(image_path))
         k = cv2.waitKey(0)
         #esc key
@@ -50,11 +63,16 @@ def process_csv_results(csv_file):
             print 'do not remove'
         #f key
         elif k == 102:
-            print 'remove'
+            #check if image_path is in removed.csv
+            #if image_path in 
+            remove_these_images.append(image_path)
+            new_path = path_to_removed+ image_path.split('/')[2] + '/' + image_path.split('/')[3] 
+            remove_image(image_path, new_path)
+            print path_to_removed
         #a key
         elif k == 97:
-            print 'edit'
-
+            print path_to_edits
+    remove_images(remove_these_images)
     #return [results , emotion_types_index, image_url_index, worker_id_index]
 
 process_csv_results(results_csv)
